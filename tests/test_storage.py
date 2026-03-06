@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-
 from evalkit.core.models import EvalResult
 from evalkit.core.storage import DuckDBStorage
 

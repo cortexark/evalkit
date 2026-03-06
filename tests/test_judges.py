@@ -10,7 +10,6 @@ import pytest
 from evalkit.core.models import (
     JudgeScore,
     Rubric,
-    RubricCriteria,
     ScoreScale,
     VotingStrategy,
 )
@@ -28,7 +27,6 @@ from evalkit.judges.rubrics import (
     SUMMARIZATION_RUBRIC,
     build_rubric,
 )
-
 
 # ---------------------------------------------------------------------------
 # Concrete stub for testing BaseJudge

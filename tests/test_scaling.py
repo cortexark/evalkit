@@ -10,23 +10,17 @@ Covers:
 from __future__ import annotations
 
 import time
-from typing import Any
 
 import pytest
 
 from evalkit.core.models import (
     EvalResult,
     JudgeScore,
-    Rubric,
-    RubricCriteria,
-    ScoreScale,
-    VotingStrategy,
 )
 from evalkit.core.storage import DuckDBStorage
 from evalkit.regression.comparator import ComparisonMethod, OutputComparator
 from evalkit.regression.reporter import RegressionReporter
 from evalkit.regression.tracker import RegressionTracker
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -256,7 +250,7 @@ class TestBatchOperationsScaling:
 
             # Query in pages of 50
             pages_total = 0
-            for page in range(10):
+            for _page in range(10):
                 queried = s.get_results(limit=50)
                 pages_total += len(queried)
                 assert len(queried) == 50  # limit works

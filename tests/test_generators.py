@@ -9,8 +9,8 @@ import pytest
 
 from evalkit.generators.synthetic import SyntheticGenerator
 from evalkit.generators.templates import (
-    GenerationStrategy,
     STRATEGY_TEMPLATES,
+    GenerationStrategy,
     render_template,
 )
 

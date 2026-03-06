@@ -83,6 +83,16 @@ select = [
     "TCH",  # flake8-type-checking
     "RUF",  # ruff-specific
 ]
+ignore = [
+    "UP042",   # str+Enum to StrEnum — keep for Python 3.10 compat
+    "TCH001",  # move imports to TYPE_CHECKING — impacts runtime imports
+    "SIM108",  # ternary operator — sometimes explicit if/else is clearer
+    "B905",    # zip strict — not needed for trusted same-length sequences
+    "B017",    # blind Exception — used for duckdb which raises generic errors
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/evalkit/generators/templates.py" = ["E501"]  # template strings have long lines
 
 [tool.mypy]
 python_version = "3.11"

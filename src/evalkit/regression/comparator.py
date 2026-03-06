@@ -192,8 +192,8 @@ class OutputComparator:
         line_sim = 1.0 - abs(len_a - len_b) / max_lines
 
         # Average line length similarity
-        avg_len_a = sum(len(l) for l in lines_a) / max(len_a, 1)
-        avg_len_b = sum(len(l) for l in lines_b) / max(len_b, 1)
+        avg_len_a = sum(len(line) for line in lines_a) / max(len_a, 1)
+        avg_len_b = sum(len(line) for line in lines_b) / max(len_b, 1)
         max_avg = max(avg_len_a, avg_len_b, 1)
         len_sim = 1.0 - abs(avg_len_a - avg_len_b) / max_avg
 

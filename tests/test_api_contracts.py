@@ -10,10 +10,9 @@ import inspect
 import json
 import os
 import tempfile
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
-from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
@@ -41,7 +40,7 @@ from evalkit.generators.synthetic import SyntheticGenerator
 from evalkit.generators.templates import GenerationStrategy, render_template
 from evalkit.judges.base import BaseJudge
 from evalkit.judges.ensemble import EnsembleJudge
-from evalkit.judges.llm_judge import LLMJudge, _build_evaluation_prompt, _parse_judge_response
+from evalkit.judges.llm_judge import LLMJudge
 from evalkit.judges.rubrics import (
     FACTUAL_ACCURACY_RUBRIC,
     HELPFULNESS_RUBRIC,
@@ -52,7 +51,6 @@ from evalkit.judges.rubrics import (
 from evalkit.regression.comparator import ComparisonMethod, ComparisonResult, OutputComparator
 from evalkit.regression.reporter import RegressionReporter
 from evalkit.regression.tracker import RegressionTracker
-
 
 # ===========================================================================
 # Section 1: Core Models -- Parameter validation and type contracts

@@ -15,11 +15,8 @@ import json
 import os
 import tempfile
 import time
-import threading
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 from pydantic import ValidationError
@@ -27,7 +24,6 @@ from pydantic import ValidationError
 from evalkit.core.config import (
     EnsembleConfig,
     EvalConfig,
-    JudgeConfig,
     LLMProviderConfig,
     StorageConfig,
 )
@@ -38,20 +34,16 @@ from evalkit.core.models import (
     RegressionReport,
     Rubric,
     RubricCriteria,
-    ScoreScale,
     VotingStrategy,
 )
 from evalkit.core.storage import DuckDBStorage
 from evalkit.generators.synthetic import SyntheticGenerator
-from evalkit.generators.templates import GenerationStrategy, render_template
 from evalkit.judges.base import BaseJudge
 from evalkit.judges.ensemble import EnsembleJudge
 from evalkit.judges.llm_judge import LLMJudge, _parse_judge_response
-from evalkit.judges.rubrics import build_rubric
 from evalkit.regression.comparator import ComparisonMethod, OutputComparator
 from evalkit.regression.reporter import RegressionReporter
 from evalkit.regression.tracker import RegressionTracker
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -133,11 +125,13 @@ class TestLLMJudgeErrorHandling:
         judge = LLMJudge(judge_id="j1", rubric=rubric, llm_config=config)
 
         # Mock the api_key property to bypass env var check, then call _call_llm directly
-        with patch.object(
-            LLMProviderConfig, "api_key", new_callable=lambda: property(lambda self: "dummy")
+        with (
+            patch.object(
+                LLMProviderConfig, "api_key", new_callable=lambda: property(lambda self: "dummy")
+            ),
+            pytest.raises(ValueError, match="Unsupported provider"),
         ):
-            with pytest.raises(ValueError, match="Unsupported provider"):
-                judge._call_llm("test prompt")
+            judge._call_llm("test prompt")
 
     def test_bad_json_from_llm_raises(self) -> None:
         """If LLM returns invalid JSON, evaluate should raise ValueError."""
@@ -269,7 +263,7 @@ class TestConfigErrorHandling:
         Path(path).unlink()
 
     def test_from_yaml_with_extra_fields(self) -> None:
-        """Pydantic should accept extra fields without error (by default model is strict=False for extras)."""
+        """Pydantic accepts extra fields without error (strict=False for extras)."""
         import yaml
 
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
