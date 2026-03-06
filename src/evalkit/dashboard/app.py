@@ -11,7 +11,6 @@ Launch with: streamlit run src/evalkit/dashboard/app.py
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -34,8 +33,6 @@ def main() -> None:
             file=sys.stderr,
         )
         sys.exit(1)
-
-    import streamlit as st
 
     _run_dashboard()
 
@@ -130,6 +127,7 @@ tracker.record(result)
 def _show_live_dashboard(st_module: object, storage: object) -> None:
     """Display the live dashboard connected to a real database."""
     import streamlit as st
+
     from evalkit.core.storage import DuckDBStorage
 
     assert isinstance(storage, DuckDBStorage)

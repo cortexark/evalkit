@@ -46,7 +46,7 @@ class LLMProviderConfig(BaseModel):
         """
         key = os.environ.get(self.api_key_env_var)
         if not key:
-            raise EnvironmentError(
+            raise OSError(
                 f"API key not found. Set the {self.api_key_env_var} environment variable."
             )
         return key
