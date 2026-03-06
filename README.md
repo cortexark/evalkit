@@ -45,6 +45,66 @@ Built for engineering teams that ship LLM features and need to catch regressions
            +-----------------+
 ```
 
+### Data Flow
+
+```
+Rubric + Strategy                     Your Model
+     |                                     |
+     v                                     v
+SyntheticGenerator ──> test inputs ──> inference ──> (input, output) pairs
+                                                          |
+                                                          v
+                                             LLMJudge / EnsembleJudge
+                                                          |
+                                                          v
+                                                   list[JudgeScore]
+                                                          |
+                                                          v
+                                           EvalResult ──> DuckDB Storage
+                                                          |
+                                                          v
+                                           RegressionTracker.compare_versions()
+                                                          |
+                                              +-----------+-----------+
+                                              |                       |
+                                              v                       v
+                                     Console / Markdown        Streamlit Dashboard
+```
+
+### Functional Goals
+
+| Goal | How It Works |
+|------|-------------|
+| **Evaluate LLM outputs** | Structured rubrics scored by LLM judges with per-criterion reasoning |
+| **Detect regressions** | Automated version comparison with configurable thresholds |
+| **Generate test data** | Synthetic inputs via 4 strategies (standard, adversarial, edge case, distribution) |
+| **Visualize trends** | Interactive Streamlit dashboard backed by DuckDB analytics |
+
+### Non-Functional Goals
+
+| Goal | Design Decision |
+|------|----------------|
+| **Zero-config setup** | DuckDB embedded storage -- no database server required |
+| **Reproducibility** | Immutable Pydantic models (`frozen=True`) + schema-versioned rubrics |
+| **Provider independence** | Thin LLM abstraction -- swap OpenAI/Anthropic/Gemini without code changes |
+| **CI/CD integration** | All operations scriptable, JSON output, non-zero exit on regression |
+| **Cost efficiency** | ~$2.50 per 1,000 evaluations at GPT-4o pricing |
+
+## What This System Does Best
+
+- **Catches regressions before production.** Compare model versions on every CI run -- know within minutes if quality degraded.
+- **Replaces expensive human annotation.** LLM-as-judge at ~$2.50/1,000 samples vs $50-125 for human annotators.
+- **Produces explainable scores.** Per-criterion reasoning ("factual accuracy dropped on medical queries") instead of opaque BLEU numbers.
+- **Composable subsystems.** Use just the judge, just the tracker, or just the generator -- no framework lock-in.
+
+## Limitations
+
+- **Judge quality depends on the judge model.** Blind spots in the judge model produce inflated scores. Mitigate with ensemble voting and golden-set calibration.
+- **No concurrent writes.** DuckDB single-writer model means parallel CI jobs need separate database files.
+- **Cost scales linearly.** 10,000 samples × 3 judges = 30,000 API calls. Start with representative samples (~100-500).
+- **No built-in inference.** evalkit evaluates outputs but does not run models -- intentionally framework-agnostic.
+- **Single-machine ceiling.** DuckDB handles ~100M rows; beyond that, migrate to a columnar warehouse.
+
 ## Quick Start
 
 ### Install
