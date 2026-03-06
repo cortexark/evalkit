@@ -503,18 +503,18 @@ class TestDomainSpecificRubrics:
         assert len(SUMMARIZATION_RUBRIC.criteria) > 0
         assert len(FACTUAL_ACCURACY_RUBRIC.criteria) > 0
 
-        # Store results under different rubric names
+        # Store results under different rubric names (different model_ids)
         storage = DuckDBStorage(db_path=":memory:")
         try:
             summarization_results = _make_results(
-                "gpt-4o",
+                "gpt-4o-summarize",
                 "v1",
                 20,
                 base_score=4.0,
                 rubric_name=SUMMARIZATION_RUBRIC.name,
             )
             accuracy_results = _make_results(
-                "gpt-4o",
+                "gpt-4o-accuracy",
                 "v1",
                 20,
                 base_score=3.5,
@@ -524,8 +524,9 @@ class TestDomainSpecificRubrics:
             storage.store_results(summarization_results)
             storage.store_results(accuracy_results)
 
-            # Total 40 results for the same model/version
-            assert storage.count_results(model_id="gpt-4o", model_version="v1") == 40
+            # 20 results per rubric
+            assert storage.count_results(model_id="gpt-4o-summarize") == 20
+            assert storage.count_results(model_id="gpt-4o-accuracy") == 20
         finally:
             storage.close()
 
