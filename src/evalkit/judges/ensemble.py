@@ -114,21 +114,17 @@ class EnsembleJudge(BaseJudge):
             raise ValueError("Ensemble has no judges configured.")
 
         tasks = [
-            judge.aevaluate(input_text, output_text, reference_text)
-            for judge, _ in self.judges
+            judge.aevaluate(input_text, output_text, reference_text) for judge, _ in self.judges
         ]
         results = await asyncio.gather(*tasks)
 
         all_scores: list[tuple[list[JudgeScore], float]] = [
-            (scores, weight)
-            for scores, (_, weight) in zip(results, self.judges)
+            (scores, weight) for scores, (_, weight) in zip(results, self.judges)
         ]
 
         return self._aggregate(all_scores)
 
-    def _aggregate(
-        self, all_scores: list[tuple[list[JudgeScore], float]]
-    ) -> list[JudgeScore]:
+    def _aggregate(self, all_scores: list[tuple[list[JudgeScore], float]]) -> list[JudgeScore]:
         """Dispatch to the appropriate voting strategy.
 
         Args:
@@ -190,9 +186,7 @@ class EnsembleJudge(BaseJudge):
         )
         return result
 
-    def _majority_vote(
-        self, all_scores: list[tuple[list[JudgeScore], float]]
-    ) -> list[JudgeScore]:
+    def _majority_vote(self, all_scores: list[tuple[list[JudgeScore], float]]) -> list[JudgeScore]:
         """Use majority voting -- the most common score wins per criterion.
 
         For continuous scales, scores are rounded to the nearest integer
@@ -237,9 +231,7 @@ class EnsembleJudge(BaseJudge):
         )
         return result
 
-    def _unanimous(
-        self, all_scores: list[tuple[list[JudgeScore], float]]
-    ) -> list[JudgeScore]:
+    def _unanimous(self, all_scores: list[tuple[list[JudgeScore], float]]) -> list[JudgeScore]:
         """Require unanimous agreement -- return minimum score per criterion.
 
         If judges disagree, the most conservative (lowest) score is chosen.

@@ -82,15 +82,11 @@ class TestBaseJudge:
         assert "StubJudge" in repr(judge)
         assert "stub-1" in repr(judge)
 
-    def test_evaluate_result(
-        self, sample_rubric: Rubric, sample_scores: list[JudgeScore]
-    ) -> None:
+    def test_evaluate_result(self, sample_rubric: Rubric, sample_scores: list[JudgeScore]) -> None:
         from evalkit.core.models import EvalResult
 
         judge = StubJudge("stub-1", sample_rubric, sample_scores)
-        result = EvalResult(
-            model_id="m", input_text="in", output_text="out"
-        )
+        result = EvalResult(model_id="m", input_text="in", output_text="out")
         scores = judge.evaluate_result(result)
         assert len(scores) == 3
 
@@ -137,10 +133,12 @@ class TestParseJudgeResponse:
     """Tests for LLM response parsing."""
 
     def test_parse_clean_json(self) -> None:
-        raw = json.dumps([
-            {"criterion": "A", "score": 4, "reasoning": "Good"},
-            {"criterion": "B", "score": 3, "reasoning": "OK"},
-        ])
+        raw = json.dumps(
+            [
+                {"criterion": "A", "score": 4, "reasoning": "Good"},
+                {"criterion": "B", "score": 3, "reasoning": "OK"},
+            ]
+        )
         result = _parse_judge_response(raw, "test")
         assert len(result) == 2
 
@@ -163,9 +161,7 @@ class TestBuildEvaluationPrompt:
     """Tests for evaluation prompt construction."""
 
     def test_prompt_contains_rubric_name(self, sample_rubric: Rubric) -> None:
-        prompt = _build_evaluation_prompt(
-            sample_rubric, "input text", "output text"
-        )
+        prompt = _build_evaluation_prompt(sample_rubric, "input text", "output text")
         assert "Test Rubric" in prompt
         assert "input text" in prompt
         assert "output text" in prompt
@@ -176,9 +172,7 @@ class TestBuildEvaluationPrompt:
         assert "Clarity" in prompt
 
     def test_prompt_with_reference(self, sample_rubric: Rubric) -> None:
-        prompt = _build_evaluation_prompt(
-            sample_rubric, "in", "out", "reference answer"
-        )
+        prompt = _build_evaluation_prompt(sample_rubric, "in", "out", "reference answer")
         assert "Reference Answer" in prompt
         assert "reference answer" in prompt
 
@@ -196,14 +190,14 @@ class TestLLMJudge:
         assert judge.llm_config.provider == "openai"
 
     @patch.object(LLMJudge, "_call_llm")
-    def test_evaluate_calls_llm(
-        self, mock_call: MagicMock, sample_rubric: Rubric
-    ) -> None:
-        mock_call.return_value = json.dumps([
-            {"criterion": "Accuracy", "score": 4, "reasoning": "Good"},
-            {"criterion": "Clarity", "score": 5, "reasoning": "Clear"},
-            {"criterion": "Completeness", "score": 3, "reasoning": "OK"},
-        ])
+    def test_evaluate_calls_llm(self, mock_call: MagicMock, sample_rubric: Rubric) -> None:
+        mock_call.return_value = json.dumps(
+            [
+                {"criterion": "Accuracy", "score": 4, "reasoning": "Good"},
+                {"criterion": "Clarity", "score": 5, "reasoning": "Clear"},
+                {"criterion": "Completeness", "score": 3, "reasoning": "OK"},
+            ]
+        )
         judge = LLMJudge(judge_id="llm-1", rubric=sample_rubric)
         scores = judge.evaluate("What is Python?", "Python is a language...")
         assert len(scores) == 3
@@ -225,9 +219,7 @@ class TestLLMJudge:
 class TestEnsembleJudge:
     """Tests for the EnsembleJudge class."""
 
-    def _make_stub(
-        self, judge_id: str, rubric: Rubric, scores: dict[str, float]
-    ) -> StubJudge:
+    def _make_stub(self, judge_id: str, rubric: Rubric, scores: dict[str, float]) -> StubJudge:
         """Create a StubJudge with fixed scores per criterion."""
         judge_scores = [
             JudgeScore(judge_id=judge_id, criterion=c, score=s, reasoning=f"r-{c}")

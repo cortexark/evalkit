@@ -25,7 +25,10 @@ class TestRegressionTracker:
     def test_record_single(self, in_memory_storage: DuckDBStorage) -> None:
         tracker = RegressionTracker(storage=in_memory_storage)
         result = EvalResult(
-            model_id="m", model_version="v1", input_text="in", output_text="out",
+            model_id="m",
+            model_version="v1",
+            input_text="in",
+            output_text="out",
             aggregate_score=4.0,
         )
         tracker.record(result)
@@ -35,8 +38,11 @@ class TestRegressionTracker:
         tracker = RegressionTracker(storage=in_memory_storage)
         results = [
             EvalResult(
-                id=f"r-{i}", model_id="m", model_version="v1",
-                input_text=f"in-{i}", output_text=f"out-{i}",
+                id=f"r-{i}",
+                model_id="m",
+                model_version="v1",
+                input_text=f"in-{i}",
+                output_text=f"out-{i}",
                 aggregate_score=float(i),
             )
             for i in range(5)
@@ -44,9 +50,7 @@ class TestRegressionTracker:
         tracker.record_batch(results)
         assert in_memory_storage.count_results() == 5
 
-    def test_compare_versions_improvement(
-        self, storage_with_data: DuckDBStorage
-    ) -> None:
+    def test_compare_versions_improvement(self, storage_with_data: DuckDBStorage) -> None:
         tracker = RegressionTracker(storage=storage_with_data)
         report = tracker.compare_versions("test-model", "v1.0", "v2.0")
 
@@ -58,9 +62,7 @@ class TestRegressionTracker:
         assert report.sample_count_baseline == 5
         assert report.sample_count_candidate == 5
 
-    def test_compare_versions_regression(
-        self, storage_with_data: DuckDBStorage
-    ) -> None:
+    def test_compare_versions_regression(self, storage_with_data: DuckDBStorage) -> None:
         # Compare in reverse: v2 as baseline, v1 as candidate (regression)
         tracker = RegressionTracker(storage=storage_with_data, threshold=-0.05)
         report = tracker.compare_versions("test-model", "v2.0", "v1.0")
@@ -68,23 +70,17 @@ class TestRegressionTracker:
         assert report.overall_delta < 0
         assert report.has_regression is True
 
-    def test_compare_missing_baseline(
-        self, in_memory_storage: DuckDBStorage
-    ) -> None:
+    def test_compare_missing_baseline(self, in_memory_storage: DuckDBStorage) -> None:
         tracker = RegressionTracker(storage=in_memory_storage)
         with pytest.raises(ValueError, match="No results found"):
             tracker.compare_versions("m", "v1", "v2")
 
-    def test_compare_missing_candidate(
-        self, storage_with_data: DuckDBStorage
-    ) -> None:
+    def test_compare_missing_candidate(self, storage_with_data: DuckDBStorage) -> None:
         tracker = RegressionTracker(storage=storage_with_data)
         with pytest.raises(ValueError, match="No results found"):
             tracker.compare_versions("test-model", "v1.0", "v99.0")
 
-    def test_get_version_history(
-        self, storage_with_data: DuckDBStorage
-    ) -> None:
+    def test_get_version_history(self, storage_with_data: DuckDBStorage) -> None:
         tracker = RegressionTracker(storage=storage_with_data)
         versions = tracker.get_version_history("test-model")
         assert set(versions) == {"v1.0", "v2.0"}
@@ -215,8 +211,10 @@ class TestRegressionReporter:
 
     def test_to_markdown_pass(self) -> None:
         report = RegressionReport(
-            baseline_version="v1", candidate_version="v2",
-            model_id="m", has_regression=False,
+            baseline_version="v1",
+            candidate_version="v2",
+            model_id="m",
+            has_regression=False,
         )
         reporter = RegressionReporter()
         md = reporter.to_markdown(report)
@@ -242,8 +240,10 @@ class TestRegressionReporter:
 
     def test_to_console_all_clear(self) -> None:
         report = RegressionReport(
-            baseline_version="v1", candidate_version="v2",
-            model_id="m", has_regression=False,
+            baseline_version="v1",
+            candidate_version="v2",
+            model_id="m",
+            has_regression=False,
         )
         reporter = RegressionReporter()
         console = reporter.to_console(report)

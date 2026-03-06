@@ -27,27 +27,19 @@ class TestRubricCriteria:
         assert criteria.scale == ScoreScale.LIKERT_5
 
     def test_max_score_likert_5(self) -> None:
-        criteria = RubricCriteria(
-            name="Test", description="desc", scale=ScoreScale.LIKERT_5
-        )
+        criteria = RubricCriteria(name="Test", description="desc", scale=ScoreScale.LIKERT_5)
         assert criteria.max_score == 5.0
 
     def test_max_score_binary(self) -> None:
-        criteria = RubricCriteria(
-            name="Test", description="desc", scale=ScoreScale.BINARY
-        )
+        criteria = RubricCriteria(name="Test", description="desc", scale=ScoreScale.BINARY)
         assert criteria.max_score == 1.0
 
     def test_max_score_percentage(self) -> None:
-        criteria = RubricCriteria(
-            name="Test", description="desc", scale=ScoreScale.PERCENTAGE
-        )
+        criteria = RubricCriteria(name="Test", description="desc", scale=ScoreScale.PERCENTAGE)
         assert criteria.max_score == 1.0
 
     def test_max_score_likert_10(self) -> None:
-        criteria = RubricCriteria(
-            name="Test", description="desc", scale=ScoreScale.LIKERT_10
-        )
+        criteria = RubricCriteria(name="Test", description="desc", scale=ScoreScale.LIKERT_10)
         assert criteria.max_score == 10.0
 
     def test_frozen_model(self) -> None:
@@ -84,9 +76,7 @@ class TestRubric:
             Rubric(name="Empty", criteria=[])
 
     def test_rubric_version(self, sample_criteria: list[RubricCriteria]) -> None:
-        rubric = Rubric(
-            name="Versioned", criteria=sample_criteria, version="2.0.0"
-        )
+        rubric = Rubric(name="Versioned", criteria=sample_criteria, version="2.0.0")
         assert rubric.version == "2.0.0"
 
 
@@ -137,24 +127,18 @@ class TestEvalResult:
         )
         assert len(result.id) == 32  # hex uuid4
 
-    def test_compute_aggregate_equal_weights(
-        self, sample_eval_result: EvalResult
-    ) -> None:
+    def test_compute_aggregate_equal_weights(self, sample_eval_result: EvalResult) -> None:
         avg = sample_eval_result.compute_aggregate()
         assert avg == pytest.approx(4.0)  # (4 + 5 + 3) / 3
 
-    def test_compute_aggregate_custom_weights(
-        self, sample_eval_result: EvalResult
-    ) -> None:
+    def test_compute_aggregate_custom_weights(self, sample_eval_result: EvalResult) -> None:
         weights = {"Accuracy": 2.0, "Clarity": 1.0, "Completeness": 1.0}
         avg = sample_eval_result.compute_aggregate(weights)
         # (4*2 + 5*1 + 3*1) / (2+1+1) = 16/4 = 4.0
         assert avg == pytest.approx(4.0)
 
     def test_compute_aggregate_no_scores(self) -> None:
-        result = EvalResult(
-            model_id="m", input_text="in", output_text="out", scores=[]
-        )
+        result = EvalResult(model_id="m", input_text="in", output_text="out", scores=[])
         with pytest.raises(ValueError, match="no scores"):
             result.compute_aggregate()
 
@@ -166,9 +150,7 @@ class TestEvalResult:
         assert "metadata_json" in d
 
     def test_default_version(self) -> None:
-        result = EvalResult(
-            model_id="m", input_text="in", output_text="out"
-        )
+        result = EvalResult(model_id="m", input_text="in", output_text="out")
         assert result.model_version == "unknown"
 
 

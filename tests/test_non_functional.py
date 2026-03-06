@@ -133,7 +133,9 @@ class TestLLMJudgeErrorHandling:
         judge = LLMJudge(judge_id="j1", rubric=rubric, llm_config=config)
 
         # Mock the api_key property to bypass env var check, then call _call_llm directly
-        with patch.object(LLMProviderConfig, "api_key", new_callable=lambda: property(lambda self: "dummy")):
+        with patch.object(
+            LLMProviderConfig, "api_key", new_callable=lambda: property(lambda self: "dummy")
+        ):
             with pytest.raises(ValueError, match="Unsupported provider"):
                 judge._call_llm("test prompt")
 
@@ -160,9 +162,11 @@ class TestLLMJudgeErrorHandling:
         rubric = _make_rubric()
         judge = LLMJudge(judge_id="j1", rubric=rubric)
         with patch.object(LLMJudge, "_call_llm") as mock:
-            mock.return_value = json.dumps([
-                {"reasoning": "no criterion or score key"},
-            ])
+            mock.return_value = json.dumps(
+                [
+                    {"reasoning": "no criterion or score key"},
+                ]
+            )
             scores = judge.evaluate("in", "out")
             assert len(scores) == 1
             assert scores[0].criterion == "unknown"
@@ -218,10 +222,12 @@ class TestSyntheticGeneratorErrorHandling:
         assert result == []  # non-dict items filtered out
 
     def test_parse_response_items_missing_input_key(self) -> None:
-        raw = json.dumps([
-            {"question": "no input key"},
-            {"input": "has input key"},
-        ])
+        raw = json.dumps(
+            [
+                {"question": "no input key"},
+                {"input": "has input key"},
+            ]
+        )
         result = SyntheticGenerator._parse_response(raw)
         assert len(result) == 1
 
@@ -254,6 +260,7 @@ class TestConfigErrorHandling:
 
     def test_from_yaml_invalid_field_type(self) -> None:
         import yaml
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump({"project_name": 12345, "storage": "not_a_dict"}, f)
             path = f.name
@@ -264,6 +271,7 @@ class TestConfigErrorHandling:
     def test_from_yaml_with_extra_fields(self) -> None:
         """Pydantic should accept extra fields without error (by default model is strict=False for extras)."""
         import yaml
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump({"project_name": "test", "unknown_field": "value"}, f)
             path = f.name
@@ -305,11 +313,15 @@ class TestRegressionTrackerErrorHandling:
 
     def test_compare_only_baseline_exists(self) -> None:
         with DuckDBStorage() as s:
-            s.store_result(EvalResult(
-                model_id="m", model_version="v1",
-                input_text="i", output_text="o",
-                aggregate_score=3.0,
-            ))
+            s.store_result(
+                EvalResult(
+                    model_id="m",
+                    model_version="v1",
+                    input_text="i",
+                    output_text="o",
+                    aggregate_score=3.0,
+                )
+            )
             tracker = RegressionTracker(storage=s)
             with pytest.raises(ValueError, match="No results found"):
                 tracker.compare_versions("m", "v1", "v2")
@@ -414,7 +426,9 @@ class TestDuckDBDataIntegrity:
         """Results with None aggregate_score should be stored and retrieved."""
         with DuckDBStorage() as s:
             r = EvalResult(
-                model_id="m", input_text="i", output_text="o",
+                model_id="m",
+                input_text="i",
+                output_text="o",
                 aggregate_score=None,
             )
             s.store_result(r)
@@ -473,18 +487,36 @@ class TestDuckDBDataIntegrity:
     def test_get_results_filters_combine(self) -> None:
         """Multiple filters should AND together."""
         with DuckDBStorage() as s:
-            s.store_result(EvalResult(
-                id="1", model_id="m1", model_version="v1",
-                input_text="i", output_text="o", rubric_name="r1",
-            ))
-            s.store_result(EvalResult(
-                id="2", model_id="m1", model_version="v2",
-                input_text="i", output_text="o", rubric_name="r1",
-            ))
-            s.store_result(EvalResult(
-                id="3", model_id="m2", model_version="v1",
-                input_text="i", output_text="o", rubric_name="r2",
-            ))
+            s.store_result(
+                EvalResult(
+                    id="1",
+                    model_id="m1",
+                    model_version="v1",
+                    input_text="i",
+                    output_text="o",
+                    rubric_name="r1",
+                )
+            )
+            s.store_result(
+                EvalResult(
+                    id="2",
+                    model_id="m1",
+                    model_version="v2",
+                    input_text="i",
+                    output_text="o",
+                    rubric_name="r1",
+                )
+            )
+            s.store_result(
+                EvalResult(
+                    id="3",
+                    model_id="m2",
+                    model_version="v1",
+                    input_text="i",
+                    output_text="o",
+                    rubric_name="r2",
+                )
+            )
 
             results = s.get_results(model_id="m1", model_version="v1")
             assert len(results) == 1
@@ -505,6 +537,7 @@ class TestConfigEdgeCases:
     def test_yaml_with_only_project_name(self) -> None:
         """YAML with only project_name should use defaults for everything else."""
         import yaml
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump({"project_name": "minimal"}, f)
             path = f.name
@@ -517,6 +550,7 @@ class TestConfigEdgeCases:
     def test_yaml_empty_dict(self) -> None:
         """Empty YAML dict should produce default config."""
         import yaml
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             yaml.dump({}, f)
             path = f.name
@@ -605,7 +639,9 @@ class TestScoreBoundaryValues:
 
     def test_aggregate_score_at_zero(self) -> None:
         r = EvalResult(
-            model_id="m", input_text="i", output_text="o",
+            model_id="m",
+            input_text="i",
+            output_text="o",
             aggregate_score=0.0,
         )
         assert r.aggregate_score == 0.0
@@ -664,14 +700,26 @@ class TestRegressionThresholdBoundaries:
         """With threshold=0, equal scores should not be flagged as regression."""
         with DuckDBStorage() as s:
             for i in range(3):
-                s.store_result(EvalResult(
-                    id=f"b-{i}", model_id="m", model_version="v1",
-                    input_text=f"i{i}", output_text=f"o{i}", aggregate_score=3.0,
-                ))
-                s.store_result(EvalResult(
-                    id=f"c-{i}", model_id="m", model_version="v2",
-                    input_text=f"i{i}", output_text=f"o{i}", aggregate_score=3.0,
-                ))
+                s.store_result(
+                    EvalResult(
+                        id=f"b-{i}",
+                        model_id="m",
+                        model_version="v1",
+                        input_text=f"i{i}",
+                        output_text=f"o{i}",
+                        aggregate_score=3.0,
+                    )
+                )
+                s.store_result(
+                    EvalResult(
+                        id=f"c-{i}",
+                        model_id="m",
+                        model_version="v2",
+                        input_text=f"i{i}",
+                        output_text=f"o{i}",
+                        aggregate_score=3.0,
+                    )
+                )
             tracker = RegressionTracker(storage=s, threshold=0.0)
             report = tracker.compare_versions("m", "v1", "v2")
             assert report.overall_delta == pytest.approx(0.0)
@@ -680,14 +728,26 @@ class TestRegressionThresholdBoundaries:
     def test_very_tight_threshold(self) -> None:
         """With threshold=-0.001, even tiny drops should be flagged."""
         with DuckDBStorage() as s:
-            s.store_result(EvalResult(
-                id="b1", model_id="m", model_version="v1",
-                input_text="i", output_text="o", aggregate_score=3.0,
-            ))
-            s.store_result(EvalResult(
-                id="c1", model_id="m", model_version="v2",
-                input_text="i", output_text="o", aggregate_score=2.998,
-            ))
+            s.store_result(
+                EvalResult(
+                    id="b1",
+                    model_id="m",
+                    model_version="v1",
+                    input_text="i",
+                    output_text="o",
+                    aggregate_score=3.0,
+                )
+            )
+            s.store_result(
+                EvalResult(
+                    id="c1",
+                    model_id="m",
+                    model_version="v2",
+                    input_text="i",
+                    output_text="o",
+                    aggregate_score=2.998,
+                )
+            )
             tracker = RegressionTracker(storage=s, threshold=-0.001)
             report = tracker.compare_versions("m", "v1", "v2")
             assert report.has_regression is True
@@ -701,14 +761,26 @@ class TestRegressionThresholdBoundaries:
         See bug report: threshold logic does not handle positive thresholds correctly.
         """
         with DuckDBStorage() as s:
-            s.store_result(EvalResult(
-                id="b1", model_id="m", model_version="v1",
-                input_text="i", output_text="o", aggregate_score=5.0,
-            ))
-            s.store_result(EvalResult(
-                id="c1", model_id="m", model_version="v2",
-                input_text="i", output_text="o", aggregate_score=1.0,
-            ))
+            s.store_result(
+                EvalResult(
+                    id="b1",
+                    model_id="m",
+                    model_version="v1",
+                    input_text="i",
+                    output_text="o",
+                    aggregate_score=5.0,
+                )
+            )
+            s.store_result(
+                EvalResult(
+                    id="c1",
+                    model_id="m",
+                    model_version="v2",
+                    input_text="i",
+                    output_text="o",
+                    aggregate_score=1.0,
+                )
+            )
             tracker = RegressionTracker(storage=s, threshold=999.0)
             report = tracker.compare_versions("m", "v1", "v2")
             # BUG: This incorrectly flags as regression because -4.0 < 999.0
@@ -835,7 +907,9 @@ class TestReporterEdgeCases:
     def test_report_with_no_deltas(self) -> None:
         reporter = RegressionReporter()
         report = RegressionReport(
-            baseline_version="v1", candidate_version="v2", model_id="m",
+            baseline_version="v1",
+            candidate_version="v2",
+            model_id="m",
         )
         md = reporter.to_markdown(report)
         assert "Regression Report" in md
@@ -845,12 +919,18 @@ class TestReporterEdgeCases:
     def test_report_with_zero_delta(self) -> None:
         reporter = RegressionReporter()
         delta = RegressionDelta(
-            criterion="A", baseline_score=3.0, candidate_score=3.0,
-            delta=0.0, relative_delta_pct=0.0,
+            criterion="A",
+            baseline_score=3.0,
+            candidate_score=3.0,
+            delta=0.0,
+            relative_delta_pct=0.0,
         )
         report = RegressionReport(
-            baseline_version="v1", candidate_version="v2", model_id="m",
-            deltas=[delta], overall_delta=0.0,
+            baseline_version="v1",
+            candidate_version="v2",
+            model_id="m",
+            deltas=[delta],
+            overall_delta=0.0,
         )
         md = reporter.to_markdown(report)
         assert "+0.0000" in md or "0.0000" in md
@@ -858,7 +938,9 @@ class TestReporterEdgeCases:
     def test_save_report_json_format(self) -> None:
         reporter = RegressionReporter()
         report = RegressionReport(
-            baseline_version="v1", candidate_version="v2", model_id="m",
+            baseline_version="v1",
+            candidate_version="v2",
+            model_id="m",
         )
         with tempfile.TemporaryDirectory() as tmpdir:
             path = str(Path(tmpdir) / "report.json")
@@ -870,7 +952,9 @@ class TestReporterEdgeCases:
     def test_save_report_unknown_format_defaults_to_markdown(self) -> None:
         reporter = RegressionReporter()
         report = RegressionReport(
-            baseline_version="v1", candidate_version="v2", model_id="m",
+            baseline_version="v1",
+            candidate_version="v2",
+            model_id="m",
         )
         with tempfile.TemporaryDirectory() as tmpdir:
             path = str(Path(tmpdir) / "report.txt")

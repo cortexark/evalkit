@@ -20,6 +20,7 @@ def _check_streamlit() -> bool:
     """Check if streamlit is available."""
     try:
         import streamlit  # noqa: F401
+
         return True
     except ImportError:
         return False
@@ -29,13 +30,13 @@ def main() -> None:
     """Entry point for the evalkit dashboard."""
     if not _check_streamlit():
         print(
-            "Streamlit is not installed. Install it with:\n"
-            "  pip install evalkit[dashboard]",
+            "Streamlit is not installed. Install it with:\n  pip install evalkit[dashboard]",
             file=sys.stderr,
         )
         sys.exit(1)
 
     import streamlit as st
+
     _run_dashboard()
 
 
@@ -87,6 +88,7 @@ def _run_dashboard() -> None:
 def _show_demo_dashboard(st: object) -> None:
     """Display a demo dashboard with sample data."""
     import streamlit as _st
+
     st = _st
 
     col1, col2, col3 = st.columns(3)
@@ -184,10 +186,7 @@ def _show_live_dashboard(st_module: object, storage: object) -> None:
                     version_scores.setdefault(v, []).append(score)
 
             if version_scores:
-                chart_data = {
-                    v: sum(scores) / len(scores)
-                    for v, scores in version_scores.items()
-                }
+                chart_data = {v: sum(scores) / len(scores) for v, scores in version_scores.items()}
                 st.bar_chart(chart_data)
             else:
                 st.info("No scored results for this model.")

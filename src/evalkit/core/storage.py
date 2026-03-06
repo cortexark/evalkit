@@ -160,9 +160,7 @@ class DuckDBStorage:
         rows = result.fetchall()
         return [dict(zip(columns, row)) for row in rows]
 
-    def get_version_scores(
-        self, model_id: str, model_version: str
-    ) -> list[dict[str, Any]]:
+    def get_version_scores(self, model_id: str, model_version: str) -> list[dict[str, Any]]:
         """Get all results for a specific model version.
 
         Args:
@@ -194,9 +192,7 @@ class DuckDBStorage:
         )
         return [row[0] for row in result.fetchall()]
 
-    def count_results(
-        self, model_id: str | None = None, model_version: str | None = None
-    ) -> int:
+    def count_results(self, model_id: str | None = None, model_version: str | None = None) -> int:
         """Count evaluation results with optional filters.
 
         Args:

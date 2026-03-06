@@ -297,9 +297,7 @@ class LLMJudge(BaseJudge):
         Returns:
             List of JudgeScore instances, one per rubric criterion.
         """
-        prompt = _build_evaluation_prompt(
-            self.rubric, input_text, output_text, reference_text
-        )
+        prompt = _build_evaluation_prompt(self.rubric, input_text, output_text, reference_text)
         raw_response = self._call_llm(prompt)
         parsed = _parse_judge_response(raw_response, self.judge_id)
 
@@ -321,9 +319,7 @@ class LLMJudge(BaseJudge):
         Returns:
             List of JudgeScore instances, one per rubric criterion.
         """
-        prompt = _build_evaluation_prompt(
-            self.rubric, input_text, output_text, reference_text
-        )
+        prompt = _build_evaluation_prompt(self.rubric, input_text, output_text, reference_text)
         raw_response = await self._acall_llm(prompt)
         parsed = _parse_judge_response(raw_response, self.judge_id)
 

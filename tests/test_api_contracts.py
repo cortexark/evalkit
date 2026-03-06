@@ -283,9 +283,17 @@ class TestEvalResultContract:
         r = EvalResult(model_id="m", input_text="i", output_text="o")
         d = r.to_storage_dict()
         expected_keys = {
-            "id", "model_id", "model_version", "input_text", "output_text",
-            "reference_text", "aggregate_score", "rubric_name", "created_at",
-            "scores_json", "metadata_json",
+            "id",
+            "model_id",
+            "model_version",
+            "input_text",
+            "output_text",
+            "reference_text",
+            "aggregate_score",
+            "rubric_name",
+            "created_at",
+            "scores_json",
+            "metadata_json",
         }
         assert set(d.keys()) == expected_keys
 
@@ -425,6 +433,7 @@ class TestEvalConfigContract:
         }
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             import yaml
+
             yaml.dump(data, f)
             path = f.name
 
@@ -474,6 +483,7 @@ class TestEvalConfigContract:
         }
         with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
             import yaml
+
             yaml.dump(data, f)
             path = f.name
 
@@ -660,10 +670,13 @@ class TestBuildRubricContract:
         assert r.description == "My desc"
 
     def test_weight_from_criteria_defs(self) -> None:
-        r = build_rubric("Test", [
-            {"name": "A", "description": "d", "weight": 3.0},
-            {"name": "B", "description": "d"},
-        ])
+        r = build_rubric(
+            "Test",
+            [
+                {"name": "A", "description": "d", "weight": 3.0},
+                {"name": "B", "description": "d"},
+            ],
+        )
         assert r.criteria[0].weight == 3.0
         assert r.criteria[1].weight == 1.0  # default
 
@@ -671,12 +684,15 @@ class TestBuildRubricContract:
 class TestPrebuiltRubricsContract:
     """Validate all 4 pre-built rubrics are correctly defined."""
 
-    @pytest.mark.parametrize("rubric,expected_name,min_criteria", [
-        (SUMMARIZATION_RUBRIC, "Summarization Quality", 4),
-        (FACTUAL_ACCURACY_RUBRIC, "Factual Accuracy", 3),
-        (HELPFULNESS_RUBRIC, "Helpfulness", 3),
-        (SAFETY_RUBRIC, "Safety", 3),
-    ])
+    @pytest.mark.parametrize(
+        "rubric,expected_name,min_criteria",
+        [
+            (SUMMARIZATION_RUBRIC, "Summarization Quality", 4),
+            (FACTUAL_ACCURACY_RUBRIC, "Factual Accuracy", 3),
+            (HELPFULNESS_RUBRIC, "Helpfulness", 3),
+            (SAFETY_RUBRIC, "Safety", 3),
+        ],
+    )
     def test_rubric_structure(self, rubric: Rubric, expected_name: str, min_criteria: int) -> None:
         assert rubric.name == expected_name
         assert len(rubric.criteria) >= min_criteria
@@ -788,14 +804,26 @@ class TestRegressionTrackerContract:
             tracker = RegressionTracker(storage=s)
             # Populate data
             for i in range(3):
-                s.store_result(EvalResult(
-                    id=f"b-{i}", model_id="m", model_version="v1",
-                    input_text=f"i{i}", output_text=f"o{i}", aggregate_score=3.0,
-                ))
-                s.store_result(EvalResult(
-                    id=f"c-{i}", model_id="m", model_version="v2",
-                    input_text=f"i{i}", output_text=f"o{i}", aggregate_score=3.5,
-                ))
+                s.store_result(
+                    EvalResult(
+                        id=f"b-{i}",
+                        model_id="m",
+                        model_version="v1",
+                        input_text=f"i{i}",
+                        output_text=f"o{i}",
+                        aggregate_score=3.0,
+                    )
+                )
+                s.store_result(
+                    EvalResult(
+                        id=f"c-{i}",
+                        model_id="m",
+                        model_version="v2",
+                        input_text=f"i{i}",
+                        output_text=f"o{i}",
+                        aggregate_score=3.5,
+                    )
+                )
             report = tracker.compare_versions("m", "v1", "v2")
             assert isinstance(report, RegressionReport)
 
@@ -837,42 +865,32 @@ class TestRegressionReporterContract:
 
     def test_to_markdown_return_type(self) -> None:
         reporter = RegressionReporter()
-        report = RegressionReport(
-            baseline_version="v1", candidate_version="v2", model_id="m"
-        )
+        report = RegressionReport(baseline_version="v1", candidate_version="v2", model_id="m")
         result = reporter.to_markdown(report)
         assert isinstance(result, str)
 
     def test_to_json_return_type(self) -> None:
         reporter = RegressionReporter()
-        report = RegressionReport(
-            baseline_version="v1", candidate_version="v2", model_id="m"
-        )
+        report = RegressionReport(baseline_version="v1", candidate_version="v2", model_id="m")
         result = reporter.to_json(report)
         assert isinstance(result, str)
         json.loads(result)  # should be valid JSON
 
     def test_to_dict_return_type(self) -> None:
         reporter = RegressionReporter()
-        report = RegressionReport(
-            baseline_version="v1", candidate_version="v2", model_id="m"
-        )
+        report = RegressionReport(baseline_version="v1", candidate_version="v2", model_id="m")
         result = reporter.to_dict(report)
         assert isinstance(result, dict)
 
     def test_to_console_return_type(self) -> None:
         reporter = RegressionReporter()
-        report = RegressionReport(
-            baseline_version="v1", candidate_version="v2", model_id="m"
-        )
+        report = RegressionReport(baseline_version="v1", candidate_version="v2", model_id="m")
         result = reporter.to_console(report)
         assert isinstance(result, str)
 
     def test_save_report_creates_file(self) -> None:
         reporter = RegressionReporter()
-        report = RegressionReport(
-            baseline_version="v1", candidate_version="v2", model_id="m"
-        )
+        report = RegressionReport(baseline_version="v1", candidate_version="v2", model_id="m")
         with tempfile.TemporaryDirectory() as tmpdir:
             path = str(Path(tmpdir) / "report.md")
             reporter.save_report(report, path)

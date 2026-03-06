@@ -118,11 +118,13 @@ class TestStorageScaling:
             for v in range(5):
                 version = f"v{v}.0"
                 for i in range(200):
-                    s.store_result(_make_eval_result(
-                        i + v * 200,
-                        model_version=version,
-                        aggregate_score=3.0 + v * 0.2,
-                    ))
+                    s.store_result(
+                        _make_eval_result(
+                            i + v * 200,
+                            model_version=version,
+                            aggregate_score=3.0 + v * 0.2,
+                        )
+                    )
 
             assert s.count_results() == 1000
 
@@ -141,10 +143,12 @@ class TestStorageScaling:
         """get_distinct_versions with many versions should be fast."""
         with DuckDBStorage() as s:
             for v in range(50):
-                s.store_result(_make_eval_result(
-                    v,
-                    model_version=f"v{v}.0",
-                ))
+                s.store_result(
+                    _make_eval_result(
+                        v,
+                        model_version=f"v{v}.0",
+                    )
+                )
 
             start = time.monotonic()
             versions = s.get_distinct_versions("scale-model")
@@ -195,10 +199,7 @@ class TestStorageScaling:
         with DuckDBStorage() as s:
             for model_idx in range(5):
                 model_id = f"model-{model_idx}"
-                results = [
-                    _make_eval_result(i, model_id=model_id)
-                    for i in range(200)
-                ]
+                results = [_make_eval_result(i, model_id=model_id) for i in range(200)]
                 s.store_results(results)
 
             assert s.count_results() == 1000
@@ -303,8 +304,12 @@ class TestRegressionComparisonScaling:
     def test_compare_versions_with_regression_large(self) -> None:
         """Detect regression across large datasets."""
         with DuckDBStorage() as s:
-            v1 = [_make_eval_result(i, model_version="v1.0", aggregate_score=4.0) for i in range(500)]
-            v2 = [_make_eval_result(i, model_version="v2.0", aggregate_score=3.0) for i in range(500)]
+            v1 = [
+                _make_eval_result(i, model_version="v1.0", aggregate_score=4.0) for i in range(500)
+            ]
+            v2 = [
+                _make_eval_result(i, model_version="v2.0", aggregate_score=3.0) for i in range(500)
+            ]
             s.store_results(v1)
             s.store_results(v2)
 
@@ -320,10 +325,12 @@ class TestRegressionComparisonScaling:
         with DuckDBStorage() as s:
             for v in range(20):
                 for i in range(10):
-                    s.store_result(_make_eval_result(
-                        i + v * 10,
-                        model_version=f"v{v}.0",
-                    ))
+                    s.store_result(
+                        _make_eval_result(
+                            i + v * 10,
+                            model_version=f"v{v}.0",
+                        )
+                    )
 
             tracker = RegressionTracker(storage=s)
             versions = tracker.get_version_history("scale-model")
@@ -347,8 +354,12 @@ class TestRegressionComparisonScaling:
     def test_report_generation_at_scale(self) -> None:
         """Generate reports for large comparison."""
         with DuckDBStorage() as s:
-            v1 = [_make_eval_result(i, model_version="v1.0", aggregate_score=3.5) for i in range(500)]
-            v2 = [_make_eval_result(i, model_version="v2.0", aggregate_score=3.8) for i in range(500)]
+            v1 = [
+                _make_eval_result(i, model_version="v1.0", aggregate_score=3.5) for i in range(500)
+            ]
+            v2 = [
+                _make_eval_result(i, model_version="v2.0", aggregate_score=3.8) for i in range(500)
+            ]
             s.store_results(v1)
             s.store_results(v2)
 
@@ -385,7 +396,10 @@ class TestComparatorBatchScaling:
         """Compare 100 output pairs using EXACT method."""
         comp = OutputComparator()
         pairs = [
-            (f"Output {i} from model A", f"Output {i} from model A" if i % 2 == 0 else f"Output {i} from model B")
+            (
+                f"Output {i} from model A",
+                f"Output {i} from model A" if i % 2 == 0 else f"Output {i} from model B",
+            )
             for i in range(100)
         ]
 
@@ -552,8 +566,14 @@ class TestStressTests:
     def test_regression_comparison_speed(self) -> None:
         """Benchmark regression comparison on 2000 results (1000 per version)."""
         with DuckDBStorage() as s:
-            v1 = [_make_eval_result(i, model_version="v1.0", aggregate_score=3.0) for i in range(1000)]
-            v2 = [_make_eval_result(i, model_version="v2.0", aggregate_score=3.5) for i in range(1000)]
+            v1 = [
+                _make_eval_result(i, model_version="v1.0", aggregate_score=3.0)
+                for i in range(1000)
+            ]
+            v2 = [
+                _make_eval_result(i, model_version="v2.0", aggregate_score=3.5)
+                for i in range(1000)
+            ]
             s.store_results(v1)
             s.store_results(v2)
 

@@ -40,18 +40,12 @@ class TestDuckDBStorage:
         stored = in_memory_storage.get_results(model_id="batch-model")
         assert len(stored) == 5
 
-    def test_filter_by_model_version(
-        self, storage_with_data: DuckDBStorage
-    ) -> None:
-        v1_results = storage_with_data.get_results(
-            model_id="test-model", model_version="v1.0"
-        )
+    def test_filter_by_model_version(self, storage_with_data: DuckDBStorage) -> None:
+        v1_results = storage_with_data.get_results(model_id="test-model", model_version="v1.0")
         assert len(v1_results) == 5
         assert all(r["model_version"] == "v1.0" for r in v1_results)
 
-    def test_filter_by_rubric(
-        self, storage_with_data: DuckDBStorage
-    ) -> None:
+    def test_filter_by_rubric(self, storage_with_data: DuckDBStorage) -> None:
         results = storage_with_data.get_results(rubric_name="Test Rubric")
         assert len(results) == 10
 
@@ -59,20 +53,14 @@ class TestDuckDBStorage:
         total = storage_with_data.count_results()
         assert total == 10
 
-        v1_count = storage_with_data.count_results(
-            model_id="test-model", model_version="v1.0"
-        )
+        v1_count = storage_with_data.count_results(model_id="test-model", model_version="v1.0")
         assert v1_count == 5
 
-    def test_get_distinct_versions(
-        self, storage_with_data: DuckDBStorage
-    ) -> None:
+    def test_get_distinct_versions(self, storage_with_data: DuckDBStorage) -> None:
         versions = storage_with_data.get_distinct_versions("test-model")
         assert set(versions) == {"v1.0", "v2.0"}
 
-    def test_get_version_scores(
-        self, storage_with_data: DuckDBStorage
-    ) -> None:
+    def test_get_version_scores(self, storage_with_data: DuckDBStorage) -> None:
         scores = storage_with_data.get_version_scores("test-model", "v1.0")
         assert len(scores) == 5
         assert all(s["aggregate_score"] is not None for s in scores)
@@ -81,9 +69,7 @@ class TestDuckDBStorage:
         results = storage_with_data.get_results(limit=3)
         assert len(results) == 3
 
-    def test_upsert_on_duplicate_id(
-        self, in_memory_storage: DuckDBStorage
-    ) -> None:
+    def test_upsert_on_duplicate_id(self, in_memory_storage: DuckDBStorage) -> None:
         result1 = EvalResult(
             id="dup-1",
             model_id="m",

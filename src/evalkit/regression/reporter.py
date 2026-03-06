@@ -38,10 +38,8 @@ class RegressionReporter:
             f"# Regression Report {status_icon}",
             "",
             f"**Model:** {report.model_id}",
-            f"**Baseline:** {report.baseline_version} "
-            f"({report.sample_count_baseline} samples)",
-            f"**Candidate:** {report.candidate_version} "
-            f"({report.sample_count_candidate} samples)",
+            f"**Baseline:** {report.baseline_version} ({report.sample_count_baseline} samples)",
+            f"**Candidate:** {report.candidate_version} ({report.sample_count_candidate} samples)",
             f"**Status:** {status}",
             f"**Overall Delta:** {report.overall_delta:+.4f}",
             f"**Generated:** {report.created_at.isoformat()}",

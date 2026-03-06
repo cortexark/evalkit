@@ -88,13 +88,9 @@ class RegressionTracker:
         candidate_rows = self.storage.get_version_scores(model_id, candidate_version)
 
         if not baseline_rows:
-            raise ValueError(
-                f"No results found for {model_id} version {baseline_version}"
-            )
+            raise ValueError(f"No results found for {model_id} version {baseline_version}")
         if not candidate_rows:
-            raise ValueError(
-                f"No results found for {model_id} version {candidate_version}"
-            )
+            raise ValueError(f"No results found for {model_id} version {candidate_version}")
 
         baseline_scores = [
             r["aggregate_score"] for r in baseline_rows if r["aggregate_score"] is not None

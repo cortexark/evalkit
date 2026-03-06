@@ -84,4 +84,6 @@ class BaseJudge(ABC):
         )
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(judge_id={self.judge_id!r}, rubric={self.rubric.name!r})"
+        return (
+            f"{self.__class__.__name__}(judge_id={self.judge_id!r}, rubric={self.rubric.name!r})"
+        )

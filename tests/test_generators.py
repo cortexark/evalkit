@@ -65,10 +65,12 @@ class TestSyntheticGenerator:
         assert gen.strategy == GenerationStrategy.ADVERSARIAL
 
     def test_parse_clean_json(self) -> None:
-        raw = json.dumps([
-            {"input": "What is ML?", "difficulty": "easy"},
-            {"input": "Explain backpropagation", "difficulty": "hard"},
-        ])
+        raw = json.dumps(
+            [
+                {"input": "What is ML?", "difficulty": "easy"},
+                {"input": "Explain backpropagation", "difficulty": "hard"},
+            ]
+        )
         result = SyntheticGenerator._parse_response(raw)
         assert len(result) == 2
         assert result[0]["input"] == "What is ML?"
@@ -79,10 +81,12 @@ class TestSyntheticGenerator:
         assert len(result) == 1
 
     def test_parse_filters_items_without_input(self) -> None:
-        raw = json.dumps([
-            {"input": "valid", "category": "common"},
-            {"no_input_key": "invalid"},
-        ])
+        raw = json.dumps(
+            [
+                {"input": "valid", "category": "common"},
+                {"no_input_key": "invalid"},
+            ]
+        )
         result = SyntheticGenerator._parse_response(raw)
         assert len(result) == 1
 
@@ -117,11 +121,13 @@ class TestSyntheticGenerator:
         from unittest.mock import MagicMock
 
         assert isinstance(mock_call, MagicMock)
-        mock_call.return_value = json.dumps([
-            {"input": "Q1", "difficulty": "easy"},
-            {"input": "Q2", "difficulty": "medium"},
-            {"input": "Q3", "difficulty": "hard"},
-        ])
+        mock_call.return_value = json.dumps(
+            [
+                {"input": "Q1", "difficulty": "easy"},
+                {"input": "Q2", "difficulty": "medium"},
+                {"input": "Q3", "difficulty": "hard"},
+            ]
+        )
         gen = SyntheticGenerator()
         results = gen.generate("machine learning", count=3)
         assert len(results) == 3
@@ -132,11 +138,13 @@ class TestSyntheticGenerator:
         from unittest.mock import MagicMock
 
         assert isinstance(mock_call, MagicMock)
-        mock_call.return_value = json.dumps([
-            {"input": "Q1"},
-            {"input": "q1"},  # duplicate
-            {"input": "Q2"},
-        ])
+        mock_call.return_value = json.dumps(
+            [
+                {"input": "Q1"},
+                {"input": "q1"},  # duplicate
+                {"input": "Q2"},
+            ]
+        )
         gen = SyntheticGenerator()
         results = gen.generate("topic", count=3)
         assert len(results) == 2
