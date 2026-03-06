@@ -116,7 +116,7 @@ def _parse_judge_response(raw_response: str, judge_id: str) -> list[dict[str, An
     if not isinstance(parsed, list):
         raise ValueError(f"Expected JSON array, got {type(parsed).__name__}")
 
-    return parsed  # type: ignore[return-value]
+    return parsed
 
 
 class LLMJudge(BaseJudge):
