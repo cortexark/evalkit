@@ -82,7 +82,7 @@ class SyntheticGenerator(BaseGenerator):
                 timeout=self.llm_config.timeout_seconds,
             )
             response.raise_for_status()
-            return response.json()["choices"][0]["message"]["content"]
+            return str(response.json()["choices"][0]["message"]["content"])
         elif self.llm_config.provider == "anthropic":
             response = httpx.post(
                 "https://api.anthropic.com/v1/messages",
@@ -100,7 +100,7 @@ class SyntheticGenerator(BaseGenerator):
                 timeout=self.llm_config.timeout_seconds,
             )
             response.raise_for_status()
-            return response.json()["content"][0]["text"]
+            return str(response.json()["content"][0]["text"])
         else:
             raise ValueError(f"Unsupported provider: {self.llm_config.provider}")
 
@@ -136,7 +136,7 @@ class SyntheticGenerator(BaseGenerator):
                     },
                 )
                 response.raise_for_status()
-                return response.json()["choices"][0]["message"]["content"]
+                return str(response.json()["choices"][0]["message"]["content"])
             elif self.llm_config.provider == "anthropic":
                 response = await client.post(
                     "https://api.anthropic.com/v1/messages",
@@ -153,7 +153,7 @@ class SyntheticGenerator(BaseGenerator):
                     },
                 )
                 response.raise_for_status()
-                return response.json()["content"][0]["text"]
+                return str(response.json()["content"][0]["text"])
             else:
                 raise ValueError(f"Unsupported provider: {self.llm_config.provider}")
 

@@ -216,7 +216,8 @@ class DuckDBStorage:
         query = f"SELECT COUNT(*) FROM eval_results {where_clause}"
 
         result = self._conn.execute(query, params)
-        return result.fetchone()[0]  # type: ignore[index]
+        row = result.fetchone()
+        return int(row[0]) if row else 0
 
     def close(self) -> None:
         """Close the database connection."""

@@ -116,7 +116,7 @@ def _parse_judge_response(raw_response: str, judge_id: str) -> list[dict[str, An
     if not isinstance(parsed, list):
         raise ValueError(f"Expected JSON array, got {type(parsed).__name__}")
 
-    return parsed  # type: ignore[no-any-return]
+    return parsed  # type: ignore[return-value]
 
 
 class LLMJudge(BaseJudge):
@@ -198,7 +198,7 @@ class LLMJudge(BaseJudge):
             timeout=self.llm_config.timeout_seconds,
         )
         response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"]
+        return str(response.json()["choices"][0]["message"]["content"])
 
     def _call_anthropic(self, prompt: str, api_key: str) -> str:
         """Call the Anthropic messages API.
@@ -226,7 +226,7 @@ class LLMJudge(BaseJudge):
             timeout=self.llm_config.timeout_seconds,
         )
         response.raise_for_status()
-        return response.json()["content"][0]["text"]
+        return str(response.json()["content"][0]["text"])
 
     @retry(
         stop=stop_after_attempt(3),
@@ -260,7 +260,7 @@ class LLMJudge(BaseJudge):
                     },
                 )
                 response.raise_for_status()
-                return response.json()["choices"][0]["message"]["content"]
+                return str(response.json()["choices"][0]["message"]["content"])
             elif self.llm_config.provider == "anthropic":
                 response = await client.post(
                     "https://api.anthropic.com/v1/messages",
@@ -277,7 +277,7 @@ class LLMJudge(BaseJudge):
                     },
                 )
                 response.raise_for_status()
-                return response.json()["content"][0]["text"]
+                return str(response.json()["content"][0]["text"])
             else:
                 raise ValueError(f"Unsupported provider: {self.llm_config.provider}")
 
