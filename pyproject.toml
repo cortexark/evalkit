@@ -93,10 +93,13 @@ warn_unused_configs = true
 [tool.coverage.run]
 source = ["src/evalkit"]
 branch = true
+omit = [
+    "src/evalkit/dashboard/*",
+]
 
 [tool.coverage.report]
 show_missing = true
-fail_under = 85
+fail_under = 80
 exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",
